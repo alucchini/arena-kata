@@ -4,6 +4,9 @@ import { Hero } from "./model/hero";
 
 export class ArenaDamageCalculator {
 
+  /**
+   * Precondition - fight is not already won (there is still one defender with lp > 0)
+   */
   computeDamage(attacker: Hero, defenders: Hero[]): Hero[] {
     const pow = attacker.pow;
 
@@ -60,7 +63,7 @@ export class ArenaDamageCalculator {
       if (c) {
         dmg += (attacker.pow * 0.25 + (0.5 + attacker.leth/ 5000) * attacker.pow * 0.25) * (1-attacked.def/7500)
       } else {
-        dmg = attacker.pow * 0.25 * (1-attacked.def/7500);
+        dmg += attacker.pow * 0.25 * (1-attacked.def/7500);
       }
     }
 
