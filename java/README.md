@@ -25,3 +25,15 @@ For others:
 > ./gradlew test
 
 Whenever tests are green, Jacoco will run and output them in `build/reports/jacoco`
+
+## Mutation tests
+
+**Pre-requisite** : Your gradle must run with JVM >= 16, which means :
+- that your default JDK is >= 16
+- or that you add `org.gradle.java.home=<PATH TO >= 16 JDK>` to your `<HOME>/.gradle/gradle.properties` file.
+
+Windows:
+> gradlew.bat pitest
+
+Others:
+> ./gradlew pitest

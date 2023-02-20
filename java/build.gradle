@@ -1,9 +1,10 @@
 plugins {
     id 'java'
     id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.9.11'
 }
 
-group 'org.hemit'
+group 'org.katas'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -27,6 +28,11 @@ jacocoTestReport {
 jacoco {
     toolVersion = "0.8.8"
 }
-
+pitest {
+    verbose = true
+    junit5PluginVersion = '1.1.2'
+    pitestVersion = '1.11.0'
+    mutators = ['ALL']
+}
 
 
