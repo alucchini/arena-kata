@@ -25,10 +25,10 @@ class ArenaDamageCalculatorTest {
         assertEquals(8, getDefenderLp(attacker, defender))
     }
 
-    private fun getDefenderLp(attacker: Hero, defender: Hero): Int? {
+    private fun getDefenderLp(attacker: Hero, defender: Hero): Int {
         val defenders = listOf(defender)
         val arenaDamageCalculator = ArenaDamageCalculator()
         val result = arenaDamageCalculator.computeDamage(attacker, defenders)
-        return result?.get(0)?.lp
+        return result[0].lp
     }
 }

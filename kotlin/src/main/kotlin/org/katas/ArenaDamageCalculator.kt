@@ -5,8 +5,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 class ArenaDamageCalculator {
-    fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero>? {
-        val pow = attacker.pow
+    fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero> {
         val adv = mutableListOf<Hero>()
         val eq = mutableListOf<Hero>()
         val dis = mutableListOf<Hero>()
@@ -51,7 +50,7 @@ class ArenaDamageCalculator {
             }
         }
         val attacked =
-            if (adv.size > 0) adv[floor(Math.random() * adv.size).toInt()] else if (eq.size > 0) eq[Math.floor(
+            if (adv.size > 0) adv[floor(Math.random() * adv.size).toInt()] else if (eq.size > 0) eq[floor(
                 Math.random() * eq.size
             ).toInt()] else dis[floor(Math.random() * dis.size).toInt()]
         val c = Math.random() * 100 < attacker.crtr
@@ -76,10 +75,9 @@ class ArenaDamageCalculator {
         dmg = max(0.0, dmg)
         if (dmg > 0) {
             if (adv.contains(attacked)) {
-                dmg = dmg + dmg * 20 / 100f
-            } else if (eq.contains(attacked)) {
-            } else {
-                dmg = dmg - dmg * 20 / 100f
+                dmg += dmg * 20 / 100f
+            } else if (dis.contains(attacked)) {
+                dmg -= dmg * 20 / 100f
             }
             dmg = floor(dmg)
             if (dmg > 0) {

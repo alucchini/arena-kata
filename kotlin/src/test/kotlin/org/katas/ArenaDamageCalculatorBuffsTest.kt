@@ -22,7 +22,7 @@ class ArenaDamageCalculatorBuffsTest {
             attacker,
             listOf(Hero(HeroElement.Fire, 20, 0, 0, 0, lpDefender))
         )
-        assert(defenders?.first()?.lp?.toDouble() == (lpDefender - attackerPower * 1.25))
+        assert(defenders.first().lp.toDouble() == (lpDefender - attackerPower * 1.25))
     }
 
     @Test
@@ -34,6 +34,6 @@ class ArenaDamageCalculatorBuffsTest {
             setBuffs(arrayListOf(Buff.Defense))
         }
         val defenders = calculator.computeDamage(attacker, listOf(defender))
-        assert(defenders?.first()?.lp?.toDouble() == (lpDefender - attackerPower * 0.75))
+        assert(defenders.first().lp.toDouble() == (lpDefender - attackerPower * 0.75))
     }
 }
