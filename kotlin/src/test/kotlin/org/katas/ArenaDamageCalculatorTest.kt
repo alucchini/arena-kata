@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class ArenaDamageCalculatorTest {
     @Test
-    fun `should compute rest defender's lp one water hero vs one water hero`() {
+    fun `should compute rest defender's lp for neutral fight`() {
         val attacker = Hero(HeroElement.Water, 100, 0, 0, 0, 100)
         val defender = Hero(HeroElement.Water, 100, 0, 0, 0, 100)
         val defenders = listOf(defender)
@@ -15,22 +15,22 @@ class ArenaDamageCalculatorTest {
     }
 
     @Test
-    fun `should compute rest defender's lp one fire hero vs one fire hero`() {
-        val attacker = Hero(HeroElement.Fire, 10, 0, 0, 0, 100)
-        val defender = Hero(HeroElement.Fire, 100, 300, 0, 0, 100)
+    fun `should compute rest defender's lp for a fight to the advantage of the defender`() {
+        val attacker = Hero(HeroElement.Water, 100, 0, 0, 0, 100)
+        val defender = Hero(HeroElement.Earth, 100, 0, 0, 0, 100)
         val defenders = listOf(defender)
         val arenaDamageCalculator = ArenaDamageCalculator()
         val result = arenaDamageCalculator.computeDamage(attacker, defenders)
-        assertEquals(91, result?.get(0)?.lp)
+        assertEquals(20, result?.get(0)?.lp)
     }
 
     @Test
-    fun `should compute rest defender's lp one earth hero vs one earth hero`() {
-        val attacker = Hero(HeroElement.Earth, 28, 0, 0, 0, 100)
-        val defender = Hero(HeroElement.Earth, 100, 150, 0, 0, 100)
+    fun `should compute rest defender's lp for a fight to the advantage of the attacker`() {
+        val attacker = Hero(HeroElement.Water, 50, 0, 0, 0, 100)
+        val defender = Hero(HeroElement.Fire, 100, 0, 0, 0, 100)
         val defenders = listOf(defender)
         val arenaDamageCalculator = ArenaDamageCalculator()
         val result = arenaDamageCalculator.computeDamage(attacker, defenders)
-        assertEquals(73, result?.get(0)?.lp)
+        assertEquals(40, result?.get(0)?.lp)
     }
 }
