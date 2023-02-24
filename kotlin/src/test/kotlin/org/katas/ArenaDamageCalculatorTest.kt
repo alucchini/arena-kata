@@ -20,9 +20,9 @@ class ArenaDamageCalculatorTest {
 
     @Test
     fun `should compute rest defender's lp for a fight to the advantage of the attacker`() {
-        val attacker = Hero(HeroElement.Water, 50, 0, 0, 100, 100)
+        val attacker = Hero(HeroElement.Water, 50, 0, 500, 100, 100)
         val defender = Hero(HeroElement.Fire, 100, 300, 0, 0, 100)
-        assertEquals(14, getDefenderLp(attacker, defender))
+        assertEquals(8, getDefenderLp(attacker, defender))
     }
 
     private fun getDefenderLp(attacker: Hero, defender: Hero): Int? {
