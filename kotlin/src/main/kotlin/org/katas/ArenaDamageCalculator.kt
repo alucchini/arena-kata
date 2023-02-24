@@ -6,11 +6,29 @@ import kotlin.math.roundToInt
 
 class ArenaDamageCalculator {
     fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero> {
+        val (disadvantagedHeroes, neutralHeroes, advantagedHeroes) = filterDefenders(attacker, defenders)
+        val attacked = getAttacked(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
+        val isCritical = Math.random() * 100 < attacker.crtr
+        val initialDamage = getInitialDamage(isCritical, attacker, attacked)
+        val damageWithBuffs = computeBuffs(initialDamage, isCritical, attacker, attacked)
+
+        if (damageWithBuffs > 0) {
+            val finalDamage = floor(computeStrengthsAndWeaknesses(damageWithBuffs, attacked, advantagedHeroes, disadvantagedHeroes))
+            if (finalDamage > 0) {
+                attacked.lp = attacked.lp - finalDamage.toInt()
+                if (attacked.lp < 0) {
+                    attacked.lp = 0
+                }
+            }
+        }
+
+        return defenders
+    }
+
+    private fun filterDefenders(attacker:Hero, defenders: List<Hero>): Triple<List<Hero>, List<Hero>, List<Hero>> {
         val disadvantagedHeroes = mutableListOf<Hero>()
         val neutralHeroes = mutableListOf<Hero>()
         val advantagedHeroes = mutableListOf<Hero>()
-
-        // Fill lists
         defenders.filter { it.lp > 0 }.forEach {
             if (attacker.getElement() === it.getElement()) {
                 neutralHeroes.add(it)
@@ -20,29 +38,7 @@ class ArenaDamageCalculator {
                 advantagedHeroes.add(it)
             }
         }
-        val attacked = getAttacked(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
-        val isCritical = Math.random() * 100 < attacker.crtr
-        val initialDamage = getInitialDamage(isCritical, attacker, attacked)
-
-        // Buffs
-        var damage = computeBuffs(initialDamage, isCritical, attacker, attacked)
-
-        // Strengths and Weaknesses
-        if (damage > 0) {
-            damage = floor(computeStrengthsAndWeaknesses(damage, attacked, advantagedHeroes, disadvantagedHeroes))
-            computeDamageOnAttacked(damage, attacked)
-        }
-
-        return defenders
-    }
-
-    private fun computeDamageOnAttacked(damage: Double, attacked: Hero) {
-        if (damage > 0) {
-            attacked.lp = attacked.lp - damage.toInt()
-            if (attacked.lp < 0) {
-                attacked.lp = 0
-            }
-        }
+        return Triple(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
     }
 
     private fun getAttacked(
