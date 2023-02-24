@@ -17,7 +17,6 @@ class ArenaDamageCalculatorTourTest {
 
         val results = calculator.computeDamage(attacker, listOf(
             Hero(HeroElement.Fire, 20, 100, 30, 30, 100),
-            Hero(HeroElement.Earth, 20, 100, 30, 30, 100),
             Hero(HeroElement.Earth, 20, 100, 30, 30, 100)
         ))
         val fireDefender = results?.find { it.getElement() == HeroElement.Fire }
@@ -30,7 +29,6 @@ class ArenaDamageCalculatorTourTest {
 
         val results = calculator.computeDamage(attacker, listOf(
             Hero(HeroElement.Water, 20, 100, 30, 30, 100),
-            Hero(HeroElement.Earth, 20, 100, 30, 30, 100),
             Hero(HeroElement.Earth, 20, 100, 30, 30, 100)
         ))
         val neutralDefender = results?.find { it.getElement() == HeroElement.Water }
@@ -43,11 +41,10 @@ class ArenaDamageCalculatorTourTest {
 
         val results = calculator.computeDamage(attacker, listOf(
             Hero(HeroElement.Water, 20, 100, 30, 30, 0),
-            Hero(HeroElement.Fire, 20, 100, 30, 30, 100),
             Hero(HeroElement.Fire, 20, 100, 30, 30, 100)
         ))
-        val neutralDefender = results?.find { it.lp < 100 }
-        assert(neutralDefender != null)
+        val fireDefender = results?.find { it.getElement() === HeroElement.Fire }
+        assert(fireDefender!!.lp < 100)
     }
 
     @Test
@@ -56,7 +53,6 @@ class ArenaDamageCalculatorTourTest {
 
         val results = calculator.computeDamage(attacker, listOf(
             Hero(HeroElement.Fire, 20, 100, 30, 30, 0),
-            Hero(HeroElement.Earth, 20, 100, 30, 30, 100),
             Hero(HeroElement.Earth, 20, 100, 30, 30, 100)
         ))
         val attacked = results?.find { it.lp in 1..99 }
