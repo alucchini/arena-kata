@@ -17,20 +17,20 @@ class ArenaDamageCalculatorTest {
     @Test
     fun `should compute rest defender's lp one fire hero vs one fire hero`() {
         val attacker = Hero(HeroElement.Fire, 10, 0, 0, 0, 100)
-        val defender = Hero(HeroElement.Fire, 100, 0, 0, 0, 100)
+        val defender = Hero(HeroElement.Fire, 100, 300, 0, 0, 100)
         val defenders = listOf(defender)
         val arenaDamageCalculator = ArenaDamageCalculator()
         val result = arenaDamageCalculator.computeDamage(attacker, defenders)
-        assertEquals(90, result?.get(0)?.lp)
+        assertEquals(91, result?.get(0)?.lp)
     }
 
     @Test
     fun `should compute rest defender's lp one earth hero vs one earth hero`() {
         val attacker = Hero(HeroElement.Earth, 28, 0, 0, 0, 100)
-        val defender = Hero(HeroElement.Earth, 100, 0, 0, 0, 100)
+        val defender = Hero(HeroElement.Earth, 100, 150, 0, 0, 100)
         val defenders = listOf(defender)
         val arenaDamageCalculator = ArenaDamageCalculator()
         val result = arenaDamageCalculator.computeDamage(attacker, defenders)
-        assertEquals(72, result?.get(0)?.lp)
+        assertEquals(73, result?.get(0)?.lp)
     }
 }
