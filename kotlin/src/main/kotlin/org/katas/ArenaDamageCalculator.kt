@@ -6,20 +6,22 @@ import kotlin.math.roundToInt
 
 class ArenaDamageCalculator {
     fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero> {
-        val adv = mutableListOf<Hero>()
-        val eq = mutableListOf<Hero>()
-        val dis = mutableListOf<Hero>()
+        val disadvantagedHeroes = mutableListOf<Hero>()
+        val neutralHeroes = mutableListOf<Hero>()
+        val advantagedHeroes = mutableListOf<Hero>()
+
+        // Fill lists
         if (attacker.getElement() === HeroElement.Water) {
             for (h in defenders) {
                 if (h.lp == 0) {
                     continue
                 }
                 if (h.getElement() === HeroElement.Fire) {
-                    adv.add(h)
+                    disadvantagedHeroes.add(h)
                 } else if (h.getElement() === HeroElement.Water) {
-                    eq.add(h)
+                    neutralHeroes.add(h)
                 } else {
-                    dis.add(h)
+                    advantagedHeroes.add(h)
                 }
             }
         } else if (attacker.getElement() === HeroElement.Fire) {
@@ -28,42 +30,44 @@ class ArenaDamageCalculator {
                     continue
                 }
                 if (h.getElement() === HeroElement.Fire) {
-                    eq.add(h)
+                    neutralHeroes.add(h)
                 } else if (h.getElement() === HeroElement.Water) {
-                    dis.add(h)
+                    advantagedHeroes.add(h)
                 } else {
-                    adv.add(h)
+                    disadvantagedHeroes.add(h)
                 }
             }
-        } else {    // Hero is of type water
+        } else {
             for (h in defenders) {
                 if (h.lp == 0) {
                     continue
                 }
                 if (h.getElement() === HeroElement.Fire) {
-                    dis.add(h)
+                    advantagedHeroes.add(h)
                 } else if (h.getElement() === HeroElement.Water) {
-                    adv.add(h)
+                    disadvantagedHeroes.add(h)
                 } else {
-                    eq.add(h)
+                    neutralHeroes.add(h)
                 }
             }
         }
-        val attacked =
-            if (adv.size > 0) adv[floor(Math.random() * adv.size).toInt()] else if (eq.size > 0) eq[floor(
-                Math.random() * eq.size
-            ).toInt()] else dis[floor(Math.random() * dis.size).toInt()]
-        val c = Math.random() * 100 < attacker.crtr
-        var dmg = 0.0
-        dmg = if (c) {
+        val attacked = if (disadvantagedHeroes.size > 0) {
+            disadvantagedHeroes[floor(Math.random() * disadvantagedHeroes.size).toInt()]
+        } else if (neutralHeroes.size > 0) {
+            neutralHeroes[floor(Math.random() * neutralHeroes.size).toInt()]
+        } else {
+            advantagedHeroes[floor(Math.random() * advantagedHeroes.size).toInt()]
+        }
+        val isCritical = Math.random() * 100 < attacker.crtr
+        var dmg = if (isCritical) {
             ((attacker.pow + (0.5 + attacker.leth / 5000f) * attacker.pow).roundToInt() * (1 - attacked.def / 7500f)).toDouble()
         } else {
             (attacker.pow * (1 - attacked.def / 7500f)).toDouble()
         }
 
-        // BUFFS
+        // Buffs
         if (attacker.getBuffs().contains(Buff.Attack)) {
-            dmg += if (c) {
+            dmg += if (isCritical) {
                 ((attacker.pow * 0.25 + (0.5 + attacker.leth / 5000f) * attacker.pow * 0.25).roundToInt() * (1 - attacked.def / 7500f)).toDouble()
             } else {
                 attacker.pow * 0.25 * (1 - attacked.def / 7500f)
@@ -72,11 +76,13 @@ class ArenaDamageCalculator {
         if (attacked.getBuffs().contains(Buff.Defense)) {
             dmg = dmg / (1 - attacked.def / 7500f) * (1 - attacked.def / 7500f - 0.25)
         }
+
+        // Strengths and Weaknesses
         dmg = max(0.0, dmg)
         if (dmg > 0) {
-            if (adv.contains(attacked)) {
+            if (disadvantagedHeroes.contains(attacked)) {
                 dmg += dmg * 20 / 100f
-            } else if (dis.contains(attacked)) {
+            } else if (advantagedHeroes.contains(attacked)) {
                 dmg -= dmg * 20 / 100f
             }
             dmg = floor(dmg)
