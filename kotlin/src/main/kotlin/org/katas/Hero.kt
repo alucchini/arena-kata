@@ -8,6 +8,7 @@ class Hero(element: HeroElement, pow: Int, def: Int, leth: Int, crtr: Int, lp: I
     var crtr: Int
     var lp: Int
     private var buffs: MutableList<Buff>
+    private var counters: MutableList<Counter>
 
     init {
         this.element = element
@@ -17,6 +18,7 @@ class Hero(element: HeroElement, pow: Int, def: Int, leth: Int, crtr: Int, lp: I
         this.crtr = crtr
         this.lp = lp
         buffs = mutableListOf()
+        counters = mutableListOf()
     }
 
     fun getElement(): HeroElement {
@@ -33,5 +35,13 @@ class Hero(element: HeroElement, pow: Int, def: Int, leth: Int, crtr: Int, lp: I
 
     fun setBuffs(buffs: MutableList<Buff>) {
         this.buffs = buffs
+    }
+
+    fun getCounters(): MutableList<Counter> {
+        return counters
+    }
+
+    fun setCounters(counters: MutableList<Counter>) {
+        this.counters = counters
     }
 }
