@@ -5,90 +5,110 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 class ArenaDamageCalculator {
-    fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero>? {
-        val pow = attacker.pow
-        val adv = mutableListOf<Hero>()
-        val eq = mutableListOf<Hero>()
-        val dis = mutableListOf<Hero>()
-        if (attacker.getElement() === HeroElement.Water) {
-            for (h in defenders) {
-                if (h.lp == 0) {
-                    continue
-                }
-                if (h.getElement() === HeroElement.Fire) {
-                    adv.add(h)
-                } else if (h.getElement() === HeroElement.Water) {
-                    eq.add(h)
-                } else {
-                    dis.add(h)
-                }
-            }
-        } else if (attacker.getElement() === HeroElement.Fire) {
-            for (h in defenders) {
-                if (h.lp == 0) {
-                    continue
-                }
-                if (h.getElement() === HeroElement.Fire) {
-                    eq.add(h)
-                } else if (h.getElement() === HeroElement.Water) {
-                    dis.add(h)
-                } else {
-                    adv.add(h)
-                }
-            }
-        } else {    // Hero is of type water
-            for (h in defenders) {
-                if (h.lp == 0) {
-                    continue
-                }
-                if (h.getElement() === HeroElement.Fire) {
-                    dis.add(h)
-                } else if (h.getElement() === HeroElement.Water) {
-                    adv.add(h)
-                } else {
-                    eq.add(h)
-                }
-            }
-        }
-        val attacked =
-            if (adv.size > 0) adv[floor(Math.random() * adv.size).toInt()] else if (eq.size > 0) eq[Math.floor(
-                Math.random() * eq.size
-            ).toInt()] else dis[floor(Math.random() * dis.size).toInt()]
-        val c = Math.random() * 100 < attacker.crtr
-        var dmg = 0.0
-        dmg = if (c) {
-            ((attacker.pow + (0.5 + attacker.leth / 5000f) * attacker.pow).roundToInt() * (1 - attacked.def / 7500f)).toDouble()
-        } else {
-            (attacker.pow * (1 - attacked.def / 7500f)).toDouble()
-        }
+    fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero> {
+        val (disadvantagedHeroes, neutralHeroes, advantagedHeroes) = filterDefenders(attacker, defenders)
+        val attacked = getAttacked(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
+        val isCritical = Math.random() * 100 < attacker.crtr
+        val initialDamage = getInitialDamage(isCritical, attacker, attacked)
+        val damageWithBuffs = computeBuffs(initialDamage, isCritical, attacker, attacked)
 
-        // BUFFS
-        if (attacker.getBuffs().contains(Buff.Attack)) {
-            dmg += if (c) {
-                ((attacker.pow * 0.25 + (0.5 + attacker.leth / 5000f) * attacker.pow * 0.25).roundToInt() * (1 - attacked.def / 7500f)).toDouble()
-            } else {
-                attacker.pow * 0.25 * (1 - attacked.def / 7500f)
-            }
-        }
-        if (attacked.getBuffs().contains(Buff.Defense)) {
-            dmg = dmg / (1 - attacked.def / 7500f) * (1 - attacked.def / 7500f - 0.25)
-        }
-        dmg = max(0.0, dmg)
-        if (dmg > 0) {
-            if (adv.contains(attacked)) {
-                dmg = dmg + dmg * 20 / 100f
-            } else if (eq.contains(attacked)) {
-            } else {
-                dmg = dmg - dmg * 20 / 100f
-            }
-            dmg = floor(dmg)
-            if (dmg > 0) {
-                attacked.lp = attacked.lp - dmg.toInt()
+        if (damageWithBuffs > 0) {
+            val finalDamage = floor(computeStrengthsAndWeaknesses(damageWithBuffs, attacked, advantagedHeroes, disadvantagedHeroes))
+            if (finalDamage > 0) {
+                attacked.lp = attacked.lp - finalDamage.toInt()
                 if (attacked.lp < 0) {
                     attacked.lp = 0
                 }
             }
         }
+
         return defenders
+    }
+
+    private fun filterDefenders(attacker:Hero, defenders: List<Hero>): Triple<List<Hero>, List<Hero>, List<Hero>> {
+        val disadvantagedHeroes = mutableListOf<Hero>()
+        val neutralHeroes = mutableListOf<Hero>()
+        val advantagedHeroes = mutableListOf<Hero>()
+        defenders.filter { it.lp > 0 }.forEach {
+            if (attacker.getElement() === it.getElement()) {
+                neutralHeroes.add(it)
+            } else if (isAttackerStronger(attacker.getElement(), it.getElement())) {
+                disadvantagedHeroes.add(it)
+            } else {
+                advantagedHeroes.add(it)
+            }
+        }
+        return Triple(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
+    }
+
+    private fun getAttacked(
+        disadvantagedHeroes: List<Hero>,
+        neutralHeroes: List<Hero>,
+        advantagedHeroes: List<Hero>
+    ): Hero {
+        return if (disadvantagedHeroes.isNotEmpty()) {
+            disadvantagedHeroes[floor(Math.random() * disadvantagedHeroes.size).toInt()]
+        } else if (neutralHeroes.isNotEmpty()) {
+            neutralHeroes[floor(Math.random() * neutralHeroes.size).toInt()]
+        } else {
+            advantagedHeroes[floor(Math.random() * advantagedHeroes.size).toInt()]
+        }
+    }
+
+    private fun getInitialDamage(isCritical: Boolean, attacker: Hero, defender: Hero): Double {
+        return if (isCritical) {
+            ((attacker.pow + (0.5 + attacker.leth / 5000f) * attacker.pow).roundToInt() * (1 - defender.def / 7500f)).toDouble()
+        } else {
+            (attacker.pow * (1 - defender.def / 7500f)).toDouble()
+        }
+    }
+
+    private fun isAttackerStronger(attackerElement: HeroElement, defenderElement: HeroElement): Boolean {
+        return if (attackerElement === HeroElement.Fire && defenderElement === HeroElement.Earth) {
+            true
+        } else if (attackerElement === HeroElement.Water && defenderElement === HeroElement.Fire) {
+            true
+        } else attackerElement === HeroElement.Earth && defenderElement === HeroElement.Water
+    }
+
+    private fun computeBuffs(initialValue: Double, isCritical: Boolean, attacker: Hero, defender: Hero): Double {
+        var result = initialValue
+        attacker.getBuffs().forEach {
+            result = getDamageWithBuff(result, isCritical, it, attacker, defender)
+        }
+        defender.getBuffs().forEach {
+            result = getDamageWithBuff(result, isCritical, it, attacker, defender)
+        }
+        return result
+    }
+
+    private fun getDamageWithBuff(initialValue: Double, isCritical: Boolean, buff: Buff, attacker: Hero, defender: Hero): Double {
+        return when (buff) {
+            Buff.Attack -> {
+                val newValue = if (isCritical) {
+                    ((attacker.pow * 0.25 + (0.5 + attacker.leth / 5000f) * attacker.pow * 0.25).roundToInt()
+                            * (1 - defender.def / 7500f)).toDouble()
+                } else {
+                    attacker.pow * 0.25 * (1 - defender.def / 7500f)
+                }
+                initialValue + newValue
+            }
+            Buff.Defense -> {
+                initialValue / (1 - defender.def / 7500f) * (1 - defender.def / 7500f - 0.25)
+            }
+        }
+    }
+
+    private fun computeStrengthsAndWeaknesses(
+        initialValue: Double,
+        attacked: Hero,
+        advantagedHeroes: List<Hero>,
+        disadvantagedHeroes: List<Hero>
+    ): Double {
+        return if (disadvantagedHeroes.contains(attacked)) {
+            initialValue * 1.2
+        } else if (advantagedHeroes.contains(attacked)) {
+            initialValue * 0.8
+        } else initialValue
     }
 }
