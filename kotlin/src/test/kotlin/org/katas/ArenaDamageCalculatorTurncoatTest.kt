@@ -8,17 +8,10 @@ class ArenaDamageCalculatorTurncoatTest {
     fun `Hero with turncoat advantage change his element temporarily` () {
         val attacker = Hero(HeroElement.Fire, 100, 0, 0, 0, 100)
         attacker.apply {
-            setBuffs(arrayListOf(Buff.Turncoat))
+            setCounters(arrayListOf(Counter.Turncoat))
         }
-        if (attacker.getBuffs().contains(Buff.Turncoat)) {
-            if (attacker.getElement() == HeroElement.Fire) {
-                attacker.setElement(HeroElement.Water)
-            } else if (attacker.getElement() == HeroElement.Water) {
-                attacker.setElement(HeroElement.Earth)
-            } else {
-                attacker.setElement(HeroElement.Fire)
-            }
-        }
+        val defender = Hero(HeroElement.Fire, 100, 0, 0, 0, 100)
+        ArenaDamageCalculator().computeDamage(attacker, listOf(defender))
         assert(attacker.getElement() == HeroElement.Water)
     }
 }
