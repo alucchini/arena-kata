@@ -5,24 +5,37 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 class ArenaDamageCalculator {
-    fun computeDamage(attacker: Hero, defenders: List<Hero>): List<Hero> {
+    fun computeDamage(attacker: Hero, defenders: List<Hero>, preference: Hero? = null): List<Hero> {
         val (disadvantagedHeroes, neutralHeroes, advantagedHeroes) = filterDefenders(attacker, defenders)
-        val attacked = getAttacked(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
+        var attacked = getAttacked(disadvantagedHeroes, neutralHeroes, advantagedHeroes)
         val isCritical = Math.random() * 100 < attacker.crtr
         val initialDamage = getInitialDamage(isCritical, attacker, attacked)
         val damageWithBuffs = computeBuffs(initialDamage, isCritical, attacker, attacked)
 
-        if (damageWithBuffs > 0) {
-            val finalDamage = floor(computeStrengthsAndWeaknesses(damageWithBuffs, attacked, advantagedHeroes, disadvantagedHeroes))
-            if (finalDamage > 0) {
-                attacked.lp = attacked.lp - finalDamage.toInt()
-                if (attacked.lp < 0) {
-                    attacked.lp = 0
+        if (attacker.getCounters().contains(Counter.Holy)){
+            attacked = preference ?: attacked
+            attacked.lp = (attacked.lp - attacker.pow * 0.8).toInt()
+        } else {
+            if (attacker.getCounters().contains(Counter.Turncoat)) swapElement(attacker)
+            if (damageWithBuffs > 0) {
+                val finalDamage = floor(computeStrengthsAndWeaknesses(damageWithBuffs, attacked, advantagedHeroes, disadvantagedHeroes))
+                if (finalDamage > 0) {
+                    attacked.lp = attacked.lp - finalDamage.toInt()
                 }
             }
         }
-
+        if (attacked.lp < 0) {
+            attacked.lp = 0
+        }
         return defenders
+    }
+
+    private fun swapElement(attacker: Hero){
+        when (attacker.getElement()){
+            HeroElement.Fire -> attacker.setElement(HeroElement.Water)
+            HeroElement.Water -> attacker.setElement(HeroElement.Earth)
+            HeroElement.Earth -> attacker.setElement(HeroElement.Fire)
+        }
     }
 
     private fun filterDefenders(attacker:Hero, defenders: List<Hero>): Triple<List<Hero>, List<Hero>, List<Hero>> {
