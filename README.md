@@ -1,3 +1,14 @@
+# Testing 
+
+## Mutation Testing
+
+![Capture d’écran 2023-03-01 à 13 19 41](https://user-images.githubusercontent.com/92107731/222137535-40427bb9-ed7a-4339-a84f-d2bbbb561305.png)
+
+## Coverage Testing
+
+![Capture d’écran 2023-03-01 à 13 18 50](https://user-images.githubusercontent.com/92107731/222137326-69e03edc-4826-434f-a2c2-00a2a12cfeeb.png)
+
+
 # Arena kata
 
 Prenez le contrôle de l'arène en infligeant des dégâts massifs à vos adversaires.
