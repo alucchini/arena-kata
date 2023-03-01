@@ -1,4 +1,4 @@
-git package org.katas
+package org.katas
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
