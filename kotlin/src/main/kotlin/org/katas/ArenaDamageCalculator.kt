@@ -16,6 +16,7 @@ class ArenaDamageCalculator {
             attacked = preference ?: attacked
             attacked.lp = (attacked.lp - attacker.pow * 0.8).toInt()
         } else {
+            if (attacker.getCounters().contains(Counter.Turncoat)) swapElement(attacker)
             if (damageWithBuffs > 0) {
                 val finalDamage = floor(computeStrengthsAndWeaknesses(damageWithBuffs, attacked, advantagedHeroes, disadvantagedHeroes))
                 if (finalDamage > 0) {
@@ -27,6 +28,14 @@ class ArenaDamageCalculator {
             attacked.lp = 0
         }
         return defenders
+    }
+
+    private fun swapElement(attacker: Hero){
+        when (attacker.getElement()){
+            HeroElement.Fire -> attacker.setElement(HeroElement.Water)
+            HeroElement.Water -> attacker.setElement(HeroElement.Earth)
+            HeroElement.Earth -> attacker.setElement(HeroElement.Fire)
+        }
     }
 
     private fun filterDefenders(attacker:Hero, defenders: List<Hero>): Triple<List<Hero>, List<Hero>, List<Hero>> {
