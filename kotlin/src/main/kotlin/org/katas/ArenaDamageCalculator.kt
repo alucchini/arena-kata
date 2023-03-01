@@ -31,14 +31,10 @@ class ArenaDamageCalculator {
     }
 
     private fun swapElement(attacker: Hero){
-        if (attacker.getCounters().contains(Counter.Turncoat)) {
-            if (attacker.getElement() == HeroElement.Fire) {
-                attacker.setElement(HeroElement.Water)
-            } else if (attacker.getElement() == HeroElement.Water) {
-                attacker.setElement(HeroElement.Earth)
-            } else {
-                attacker.setElement(HeroElement.Fire)
-            }
+        when (attacker.getElement()){
+            HeroElement.Fire -> attacker.setElement(HeroElement.Water)
+            HeroElement.Water -> attacker.setElement(HeroElement.Earth)
+            HeroElement.Earth -> attacker.setElement(HeroElement.Fire)
         }
     }
 
